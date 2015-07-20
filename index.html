@@ -1,0 +1,360 @@
+<html>
+<head>
+	<style>
+		.main
+		{
+			border-style: solid;
+			width: 500px;
+			height: 500px;
+			background-color: #8E8E8E;
+			border-color: #8E8E8E;
+			top: 40px;
+			left: 400px;
+			border-radius: 10px;
+			position: absolute;
+		}
+		.block
+		{
+			margin-left: 10px;
+			margin-top: 10px;
+			width: 112.5;
+			height: 112.5;
+			background-color: #BEBEBE;
+			float: left;
+			font-size: 50px;
+			text-align: center;
+			line-height:112.5px;
+			color: white;		
+		}
+		.movable-block
+		{
+			width: 112.5;
+			height: 112.5;
+			background-color: white;
+			font-size: 50px;
+			text-align: center;
+			line-height:112.5px;
+			position: absolute;
+			left: 10px;
+			top: 10px;
+		}
+	</style>
+	<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		var blocks = [
+			[0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+		];
+
+		var restPos = 16;
+
+		var getPos = function(){
+			if (restPos === 0){
+				return -1;
+			}
+			while (true){
+				var rand = Math.random();
+				var num = Math.floor(rand*16);
+				var i = Math.floor(num / 4);
+				var j = num % 4;
+				if (blocks[i][j] === 0){
+					blocks[i][j] = 2;
+					break;
+				}
+			}
+		}
+
+		var moveLine = function(direction, index){
+			var num = 0;
+			var pos = [];
+			if (direction === 'right'){
+				for (var i = 0; i < 4; i++){
+					if (blocks[index][i] !== 0){
+						num++;
+						pos.push(i);	
+					}
+				}			
+				for (var i = 3; i >= 4-num; i--){
+					blocks[index][i] = blocks[index][pos[i+num-4]];
+					if (pos[i+num-4] !== i){
+						blocks[index][pos[i+num-4]] = 0;
+					}				
+				}
+				if (num === 4){
+					if (blocks[index][3] === blocks[index][2]){
+						blocks[index][3] *= 2;
+						blocks[index][2] = 0;
+						if (blocks[index][1] === blocks[index][0]){
+							blocks[index][2] = blocks[index][1] * 2;
+							blocks[index][0] = blocks[index][1] = 0;
+						}else{
+							blocks[index][2] = blocks[index][1];
+							blocks[index][1] = blocks[index][0];
+							blocks[index][0] = 0;
+						}
+					}else if (blocks[index][1] === blocks[index][2]){
+						blocks[index][2] *= 2;
+						blocks[index][1] = blocks[index][0];
+						blocks[insex][0] = 0;
+					}else if (blocks[index][1] === blocks[index][0]){
+						blocks[index][1] *= 2;
+						blocks[index][0] = 0;
+					}
+				}else if (num === 3){
+					if (blocks[index][3] === blocks[index][2]){
+						blocks[index][3] *= 2;
+						blocks[index][2] = blocks[index][1];
+						blocks[index][1] = 0;
+					}else if(blocks[index][1] === blocks[index][2]){
+						blocks[index][2] *= 2;
+						blocks[index][1] = 0;
+					}
+				}else if (num === 2){
+					if (blocks[index][3] === blocks[index][2]){
+						blocks[index][3] *= 2;
+						blocks[index][2] = 0;
+					}
+				}
+			}else if (direction === 'left'){
+				for (var i = 0; i < 4; i++){
+					if (blocks[index][i] !== 0){
+						num++;
+						pos.push(i);
+					}
+				}
+				for (var i = 0; i < num; i++){
+					blocks[index][i] = blocks[index][pos[i]];
+					if (pos[i] !== i){
+						blocks[index][pos[i]] = 0;
+					}
+				}
+				if (num === 4){
+					if (blocks[index][0] === blocks[index][1]){
+						blocks[index][0] *= 2;
+						blocks[index][1] = 0;
+						if (blocks[index][2] === blocks[index][3]){
+							blocks[index][1] = blocks[index][2] * 2;
+							blocks[index][2] = blocks[index][3] = 0;
+						}else{
+							blocks[index][1] = blocks[index][2];
+							blocks[index][2] = blocks[index][3];
+							blocks[index][3] = 0; 
+						}
+					}else if (blocks[index][1] === blocks[index][2]){
+						blocks[index][1] *= 2;
+						blocks[index][2] = blocks[index][3];
+						blocks[index][3] = 0;
+					}else if (blocks[index][2] === blocks[index][3]){
+						blocks[index][2] *= 2;
+						blocks[index][3] = 0;
+					}
+				}else if (num === 3){
+					if (blocks[index][0] === blocks[index][1]){
+						blocks[index][0] *= 2;
+						blocks[index][1] = blocks[index][2];
+						blocks[index][2] = 0;
+					}else if(blocks[index][1] === blocks[index][2]){
+						blocks[index][1] *= 2;
+						blocks[index][2] = 0;
+					}
+				}else if (num === 2){
+					if (blocks[index][0] === blocks[index][1]){
+						blocks[index][0] *= 2;
+						blocks[index][1] = 0;
+					}
+				}				
+			}else if (direction === 'down'){
+				for (var i = 0; i < 4; i++){
+					if (blocks[i][index] !== 0){
+						num++;
+						pos.push(i);
+					}
+				}
+				for (var i = 3; i >= 4-num; i--){
+					blocks[i][index] = blocks[pos[i+num-4]][index];
+					if (pos[i+num-4] !== i){
+						blocks[pos[i+num-4]][index] = 0;
+					}				
+				}
+
+				if (num === 4){
+					if (blocks[3][index] === blocks[2][index]){
+						blocks[2][index] *= 2;
+						blocks[2][index] = 0;
+						if (blocks[1][index] === blocks[0][index]){
+							blocks[2][index] = blocks[1][index] * 2;
+							blocks[0][index] = blocks[1][index] = 0;
+						}else{
+							blocks[2][index] = blocks[1][index];
+							blocks[1][index] = blocks[0][index];
+							blocks[0][index] = 0;
+						}
+					}else if (blocks[1][index] === blocks[2][index]){
+						blocks[2][index] *= 2;
+						blocks[1][index] = blocks[0][index];
+						blocks[0][index] = 0;
+					}else if (blocks[1][index] === blocks[0][index]){
+						blocks[1][index] *= 2;
+						blocks[0][index] = 0;
+					}
+				}else if (num === 3){
+					if (blocks[3][index] === blocks[2][index]){
+						blocks[3][index] *= 2;
+						blocks[2][index] = blocks[1][index];
+						blocks[1][index] = 0;
+					}else if(blocks[1][index] === blocks[2][index]){
+						blocks[2][index] *= 2;
+						blocks[1][index] = 0;
+					}
+				}else if (num === 2){
+					if (blocks[3][index] === blocks[2][index]){
+						blocks[3][index] *= 2;
+						blocks[2][index] = 0;
+					}
+				}
+			}else if (direction === 'up'){
+				for (var i = 0; i < 4; i++){
+					if (blocks[i][index] !== 0){
+						num++;
+						pos.push(i);
+					}
+				}
+
+				for (var i = 0; i < num; i++){
+					blocks[i][index] = blocks[pos[i]][index];
+					if (i !== pos[i]){
+						blocks[pos[i]][index] = 0;
+					}
+				}
+
+				if (num === 4){
+					if (blocks[0][index] === blocks[1][index]){
+						blocks[0][index] *= 2;
+						blocks[1][index] = 0;
+						if (blocks[2][index] === blocks[3][index]){
+							blocks[1][index] = blocks[2][index] * 2;
+							blocks[2][index] = blocks[3][index] = 0;
+						}else{
+							blocks[1][index] = blocks[2][index];
+							blocks[2][index] = blocks[3][index];
+							blocks[3][index] = 0;
+						}
+					}else if (blocks[1][index] === blocks[2][index]){
+						blocks[1][index] *= 2;
+						blocks[2][index] = blocks[3][index];
+						blocks[3][index] = 0;
+					}else if (blocks[2][index] === blocks[3][index]){
+						blocks[2][index] *= 2;
+						blocks[3][index] = 0;
+					}
+				}else if (num === 3){
+					if (blocks[0][index] === blocks[1][index]){
+						blocks[0][index] *= 2;
+						blocks[1][index] = blocks[2][index];
+						blocks[2][index] = 0;
+					}else if(blocks[1][index] === blocks[2][index]){
+						blocks[1][index] *= 2;
+						blocks[2][index] = 0;
+					}
+				}else if (num === 2){
+					if (blocks[0][index] === blocks[1][index]){
+						blocks[0][index] *= 2;
+						blocks[1][index] = 0;
+					}
+				}
+			}
+		}
+
+		var calculate = function(direction){
+			for (var i = 0; i < 4; i++){
+				moveLine(direction, i);
+			}
+		}
+
+		var show = function(){
+			var rest = 0;
+			for (var i = 0; i < 4; i++){
+				for (var j = 0; j < 4; j++){
+					var index = i * 4 + j;
+					if (blocks[i][j] !== 0){
+						$("#block"+index).text(blocks[i][j]);
+						
+					}else{
+						rest++;
+						$("#block"+index).text("");
+					}
+				}
+			}
+			restPos = rest;
+		}
+
+		$(document).keydown(function (event) {
+            if (event.keyCode == 37) {
+                calculate('left');
+                getPos();
+            	show();
+            } else if (event.keyCode == 39) {
+                calculate('right');
+                console.log(blocks);
+            	getPos();
+            	show();
+            }
+            else if (event.keyCode == 38) {
+                calculate('up');
+            	console.log('up');
+            	getPos();
+            	show();
+            }
+            else if (event.keyCode == 40) {
+                calculate('down');
+            	getPos();
+            	show();
+            }
+        });
+        getPos();
+        getPos();
+        show();
+        console.log(blocks);
+	});
+	</script>
+</head>
+<body style="align: center">
+<div class="main">
+	<div class="block" id="block0">
+	</div>
+	<div class="block" id="block1">
+	</div>
+	<div class="block" id="block2">
+	</div>
+	<div class="block" id="block3">
+	</div>
+	<div class="block" id="block4">
+	</div>
+	<div class="block" id="block5">
+	</div>
+	<div class="block" id="block6">
+	</div>
+	<div class="block" id="block7">
+	</div>
+	<div class="block" id="block8">
+	</div>
+	<div class="block" id="block9">
+	</div>
+	<div class="block" id="block10">
+	</div>
+	<div class="block" id="block11">
+	</div>
+	<div class="block" id="block12">
+	</div>
+	<div class="block" id="block13">
+	</div>
+	<div class="block" id="block14">
+	</div>
+	<div class="block" id="block15">
+	</div>
+</div>
+</body>
+</html>
